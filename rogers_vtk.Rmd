@@ -251,7 +251,6 @@ q <- p <- u <-  rep(0,timesteps + 1 )
 wS <- wI  <- wPOP <-  rep(0,timesteps )
 
 #calculate phat from empirical model
-#phat <- (1-U*s*b/c)/(1-U) #equilibrium values for frequency of social learners
 phat <- (1-U*b/c)/(1-U) #equilibrium values for frequency of social learners
 
 #set starting conditions
@@ -262,12 +261,10 @@ u[1] <- 0
 
 #begin simulation
 for (t in 1:timesteps){
-  #wI[t] <- w0 + s*b - c #fitness individual learners
   wI[t] <- w0 + b - c #fitness individual learners
   wS[t] <- w0 + b*q[t] #fitness of social learners
   wPOP[t] <- wI[t]*(1-p[t]) + wS[t]*p[t] #population mean fitness
-  #q[t+1] <- (1-u[t])*( (1-p[t])*s + p[t]*q[t]) + u[t]*0 #frequecncy of adaptive behavior
-    q[t+1] <- (1-u[t])*( (1-p[t]) + p[t]*q[t]) + u[t]*0 #frequecncy of adaptive behavior
+  q[t+1] <- (1-u[t])*( (1-p[t]) + p[t]*q[t]) + u[t]*0 #frequecncy of adaptive behavior
   p[t+1] <- p[t]*wS[t]/(p[t]*wS[t] + (1-p[t])*wI) #frequecny of social learners
   u[t+1] <- rbinom(n=1,prob=U,size=1) #sample environment changing in next gen, if 0 all SL behav maladaptive
 }
@@ -301,8 +298,6 @@ points(  seq(0:timesteps) , (u) , pch=17)
 ##Have class show that phat in simulation is the same as phat in equation
 ##Show invasion conditions of SL via simulation (when they can and can't invade)
 ##Show invasion conditions of IL via simulation (where they can and can't invade)
-
-
 ```
 # Exercises
 ### Exercise 1
@@ -332,5 +327,4 @@ which then changes the recursion for $Q_t$:
 
 ### Exercise 3
 One of the phenomenon we can see in this model is that genetic fitness can become decoupled from adaptive behavior. 
-Run a simulation(s) that shows this is the case?
-What are the conditions where this can happen?
+1. Run a simulation(s) that shows this is the case. What are the conditions where this can happen?
