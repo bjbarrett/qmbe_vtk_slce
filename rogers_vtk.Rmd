@@ -46,6 +46,8 @@ $b$ be the benefit of performing adaptive behavior. In this model we assume that
 
 $c$ is the cost of individual learning. It can be thought of as a sampling cost.
 
+We assume that $c > b$, this ensures that individual learning is always more costly than social learning.
+
 Individual learners are born, innovate a behavior at a cost, reproduce, and die.
 
 ## Social learners
@@ -197,7 +199,7 @@ c-ub =  p(c(1 - u))
 ### Invasion of individual learners
 Examining the invasion dynamics by setting $p \approx 0$ we find that social learners may invade a population of individual learners when:
 \begin{equation}
-W(I) > \hat W (S)
+W(I) < \hat W (S)
 \end{equation}
 
 Simplifying shows this is:
@@ -206,7 +208,10 @@ u<c/b
 \end{equation}
 
 
-Setting  $p \approx 1$, individual learners may invade a population of social learners when $W(I) < \hat W (S)$ or:
+Setting  $p \approx 1$, individual learners may invade a population of social learners when:
+\begin{equation}
+$W(I) > \hat W (S)$ or:
+\end{equation}
 
 \begin{align*}
 b>c
@@ -217,7 +222,7 @@ b>c
 b <- 3
 c <- 1
 w0 <- 1
-u <- 0.15
+u <- 0.1
 p_seq <- seq(from=0 , to=1 , by=0.01)
 wI <- wS <- rep (NA , length(p_seq) )
 
@@ -238,7 +243,7 @@ We can translate this model into a simulation. First what we will do is specify 
 #set initial parameter conditions
 w0 <- 1 #baseline fitness
 b <- 3 #benefit of adaptive behavior
-c <- 1 #cost of social learning
+c <- 1 #cost of individual learning
 U <- 0.05 #probability of environmental change
 #s <- 0.9 #success of innovation
 timesteps <- 500
@@ -255,7 +260,7 @@ phat <- (1-U*b/c)/(1-U) #equilibrium values for frequency of social learners
 
 #set starting conditions
 q[1] <- 0 
-p[1] <- phat 
+#p[1] <- phat 
 p[1] <- 0.001 
 u[1] <- 0
 
