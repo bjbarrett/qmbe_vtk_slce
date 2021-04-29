@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Alan Rogers' Model
 
-We wish to examine if and how social learning can evolve in temporally varying environments. 
+We wish to examine if and how social learning can evolve in temporally varying environments by analyzing a continuous environment version of the [Rogers' Model](https://www.jstor.org/stable/27563823?seq=1). 
 We wish to more formally evaluate our verbal model that social learning is adaptive in changing environments, and that social learning evolves because it minimizes the costs of individual learning.
 
 For this we will specify the fitness function for each genotype (in this case individual or social learner).
@@ -111,10 +111,11 @@ First lets solve for the steady staty of adaptive behavior $\bar Q$:
 \end{equation}
 
 \begin{equation}
-\bar Q = \frac{(1-u) (1-p)}{(1 -p (1-u))}
+\bar Q = \frac{(1-u) (1-p)}{1 -p (1-u)}
 \end{equation}
 
-With this value,, we can estimate the fitness of social leaners at the stationaty value of $\bar Q$. This is:
+With this value, we can estimate the fitness of social leaners at the stationaty value of $\bar Q$. 
+This is:
 
 \begin{equation}
 \hat W(S) = w_0 + b \bar Q = w_0 + b \frac{(1-u) (1-p)}{(1 -p (1-u))}
@@ -142,10 +143,50 @@ b \hat Q =  b - c
 
 Next lets solve for  $\hat p$, the equilibrium frequency of social learners:
 \begin{equation}
+\hat W(S)=W(I)
+\end{equation}
+
+\begin{equation}
+w_0 + b \frac{(1-u) (1-p)}{1 -p (1-u)} = w_0 + b - c
+\end{equation}
+
+\begin{equation}
 \frac{b(1-\hat p)(1-u)}{1-\hat p(1-u)} = b - c
 \end{equation}
 
-...algebra ensues where we multiply by polynomial denominator....
+\begin{equation}
+(1-\hat p)(1-u) = (b - c)(1-\hat p (1-u))
+\end{equation}
+
+\begin{equation}
+(b-b \hat p)(1-u) = b - b \hat p (1-u) -c +c \hat p (1-u) 
+\end{equation}
+
+\begin{equation}
+(b-b \hat p)(1-u) = b - b \hat p (1-u) -c + c \hat p (1-u) 
+\end{equation}
+
+Now I get lazy and drop the hat.
+
+\begin{equation}
+b - ub -bp +ubp = b - bp + bpu - c + cp -cpu
+\end{equation}
+
+\begin{equation}
+-ub = -c + pc - pcu
+\end{equation}
+
+\begin{equation}
+c-ub =  p(c - cu)
+\end{equation}
+
+\begin{equation}
+c-ub =  p(c(1 - u))
+\end{equation}
+
+\begin{equation}
+ p= \frac{c-ub}{c(1 - u)}
+\end{equation}
 
 \begin{equation}
 	\hat p = \frac{1 - u b/c}{1-u} 
@@ -188,8 +229,9 @@ for( i in 1:length(p_seq) ){
 plot(wS ~ p_seq , pch=19 , col="orange" , ylab="fitness" , xlab="p: frequency of social learners")
 points(wI ~ p_seq ,  pch=19 , col="slateblue" )
 ```  
-}
-## Simulating Rogers' Model in R
+
+
+## Simulating Rogers Model in R
 
 We can translate this model into a simulation. First what we will do is specify the initial conditions
 ```{r rogersinit conds, echo=TRUE , warning=FALSE}
@@ -202,6 +244,7 @@ U <- 0.05 #probability of environmental change
 timesteps <- 500
 #wI <- w0 + b - c
 ```
+
 ```{r rogers loop code, echo=TRUE , warning=FALSE}
 #containers for values
 q <- p <- u <-  rep(0,timesteps + 1 )
@@ -230,7 +273,7 @@ for (t in 1:timesteps){
 }
 ```
 
-Next we can pot the evolutionary dynamics of our simulation:
+Next we can plot the evolutionary dynamics of our simulation:
 
 ```{r rogers plot code, echo=TRUE , warning=FALSE}
 
@@ -285,4 +328,9 @@ which then changes the recursion for $Q_t$:
 	Q_t = (1-u)\big( (1-p)s + pQ_{t-1} )
 \end{equation}
 
-  1. Show how innovation errors affect the steady state frequency of adaptive behavior and frequency of social learners. You can do this via simulation, alegraically, or both
+  1. Show how innovation errors affect the steady state frequency of adaptive behavior and frequency of social learners. You can do this via simulation, alegraically, or both.
+
+### Exercise 3
+One of the phenomenon we can see in this model is that genetic fitness can become decoupled from adaptive behavior. 
+Run a simulation(s) that shows this is the case?
+What are the conditions where this can happen?
