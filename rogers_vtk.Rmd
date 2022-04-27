@@ -19,7 +19,7 @@ Then we will make assertions about the life cycle of the individual.
 Then we input information about the environment. 
 
 ## Environmental Conditions
-The environment changes continuously with a probability of $u$. This can be thought of flipping a (likely biased) coin (bernouli choice) where the probability of landing on one side is $u$.  that shows a stable environment, where $0 \leq u \leq 1$. 
+The environment changes continuously with a probability of $u$. This can be thought of flipping a (likely biased) coin (Bernoulli choice) where the probability of landing on one side is $u$, where $0 \leq u \leq 1$. 
 If u is equal to 1, the environment changes every generation and is never stable. 
 If $u$ = 0 the environment is stable. 
 Agents do not know if the environment has changed.
@@ -94,7 +94,7 @@ W_t(S) = W(I)
 ## The Algebra
 For $\hat p = p$ and $\hat Q = Q_{t-1} = Q_t$ there is a unique solution for the equilibrium values (denoted by hats) of the frequency of social learners and adaptive behavior:
 
-First lets solve for the steady staty of adaptive behavior $\bar Q$:
+First lets solve for the steady state of adaptive behavior $\bar Q$:
 
 \begin{equation}
 \bar Q = (1-u) (1 - p + p \bar Q )
@@ -116,7 +116,7 @@ First lets solve for the steady staty of adaptive behavior $\bar Q$:
 \bar Q = \frac{(1-u) (1-p)}{1 -p (1-u)}
 \end{equation}
 
-With this value, we can estimate the fitness of social leaners at the stationaty value of $\bar Q$. 
+With this value, we can estimate the fitness of social learners at the stationary value of $\bar Q$. 
 This is:
 
 \begin{equation}
@@ -124,7 +124,7 @@ This is:
 \end{equation}
 
 
-At this stationary value, we can solve for the conditions where individual and social learners coexist at equalibrium:
+At this stationary value, we can solve for the conditions where individual and social learners coexist at equilibrium:
 
 First lets solve for $\hat Q$ the equilibrium frequency of adaptive behavior.
 \begin{equation}
@@ -198,6 +198,7 @@ c-ub =  p(c(1 - u))
 
 ### Invasion of individual learners
 Examining the invasion dynamics by setting $p \approx 0$ we find that social learners may invade a population of individual learners when:
+
 \begin{equation}
 W(I) < \hat W (S)
 \end{equation}
@@ -210,8 +211,10 @@ u<c/b
 
 Setting  $p \approx 1$, individual learners may invade a population of social learners when:
 \begin{equation}
-$W(I) > \hat W (S)$ or:
+W(I) > \hat W (S) 
 \end{equation}
+
+or:
 
 \begin{align*}
 b>c
@@ -313,6 +316,69 @@ Convert this code into a function in $R$, where you can specify parameter values
 2. Show a simulation where social learners can invade.
 
 3. Show a simualtion where social learners cannot invade.
+```{r rogers plot code function, echo=TRUE , warning=FALSE}
+
+RogersSim <- function(U, b){
+#set initial parameter conditions
+w0 <- 1 #baseline fitness
+b <- 3 #benefit of adaptive behavior
+c <- 1 #cost of individual learning
+U <- 0.05 #probability of environmental change
+timesteps <- 500
+
+#containers for values
+q <- p <- u <-  rep(0,timesteps + 1 )
+wS <- wI  <- wPOP <-  rep(0,timesteps )
+
+#calculate phat from empirical model
+phat <- (1-U*b/c)/(1-U) #equilibrium values for frequency of social learners
+
+#set starting conditions
+q[1] <- 0 
+#p[1] <- phat 
+p[1] <- 0.001 
+u[1] <- 0
+
+#begin simulation
+for (t in 1:timesteps){
+  wI[t] <- w0 + b - c #fitness individual learners
+  wS[t] <- w0 + b*q[t] #fitness of social learners
+  wPOP[t] <- wI[t]*(1-p[t]) + wS[t]*p[t] #population mean fitness
+  q[t+1] <- (1-u[t])*( (1-p[t]) + p[t]*q[t]) + u[t]*0 #frequecncy of adaptive behavior
+  p[t+1] <- p[t]*wS[t]/(p[t]*wS[t] + (1-p[t])*wI) #frequecny of social learners
+  u[t+1] <- rbinom(n=1,prob=U,size=1) #sample environment changing in next gen, if 0 all SL behav maladaptive
+}
+
+
+par(mfrow = c(3, 1) )
+par(cex = 0.4)
+par(oma = c(4,2,1,1) )
+par(mar = c(2,4,0,0.1) )
+
+plot( p ~ c(1:(timesteps + 1) ) , ylim=c(-0.02,1) , pch=19 , col="white" , ylab="frequency of social learners (p)" , cex.lab=1.5)
+lines( (1:(timesteps +1)) , p , col="red", lty=1, lwd=2)
+points(  seq(0:timesteps) , (u-1) , pch=17)
+
+plot( q ~ c(1:(timesteps + 1) ) , ylim=c(-0.02,1) , pch=19 , col="white" , ylab="frequency of adaptive behavior" , cex.lab=1.5)
+lines( (1:(timesteps +1)) , q , col="blue", lty=1, lwd=2)
+points(  seq(0:timesteps) , (u-1) , pch=17)
+
+plot( wS ~ c(1:(timesteps) ) , ylim=c(0.9,b+w0) , pch=19 , col="white" , ylab="phenotypic fitness" , cex.lab=1.5)
+lines( c(1:timesteps) , wS , col="orange", lty=1, lwd=2)
+lines( c(1:timesteps ) , wI , col="green", lty=1, lwd=2)
+lines( c(1:timesteps ) , wPOP , col="black", lty=1, lwd=2)
+legend("topleft", legend=c("SL fitness (wS)", "IL fitness (wI)", "mean population fitness"),
+       col=c("orange", "green" , "black"), lty=1, cex=1.2 , lw=2 , bty="n")
+points(  seq(0:timesteps) , (u) , pch=17)
+}
+
+RogersSim(U=0.1 , b=3.14159)
+for(j in seq(from=0 , to=0.5 ,by=0.05)){
+  RogersSim(U=j , b=3.14159)
+}
+
+```
+
 
 ### Exercise 2
 We assume that innovation is always succesful for individual learners. This is not likely the case. Lets make innovators fail sometimes by introducing a new parameter, $s$, the success of innovation. This takes on a value between 0 and 1.
@@ -328,7 +394,7 @@ which then changes the recursion for $Q_t$:
 	Q_t = (1-u)\big( (1-p)s + pQ_{t-1} )
 \end{equation}
 
-  1. Show how innovation errors affect the steady state frequency of adaptive behavior and frequency of social learners. You can do this via simulation, alegraically, or both.
+  1. Show how innovation errors affect the steady state frequency of adaptive behavior and frequency of social learners. You can do this via simulation, algebraically, or both.
 
 ### Exercise 3
 One of the phenomenon we can see in this model is that genetic fitness can become decoupled from adaptive behavior. 
